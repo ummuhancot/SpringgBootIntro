@@ -1,15 +1,20 @@
 package com.tpe.service;
 
 import com.tpe.domain.Student;
+import com.tpe.dto.StudentDTO;
 import com.tpe.dto.UpdateStudentDTO;
 import com.tpe.exception.ConflictException;
 import com.tpe.exception.ResourceNotFoundException;
 import com.tpe.repository.StudentRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -84,9 +89,12 @@ public class StudentService {
         foundStudent.setName(studentDTO.getName());
         foundStudent.setLastname(studentDTO.getLastname());
         foundStudent.setEmail(studentDTO.getEmail());
+        //BeanUtils.copyProperties(studentDTO, foundStudent); 3 satırın kısaltması
         repository.save(foundStudent);//saveOrUpdate gibi calıştını gösterir cünkü yukarda bilgisi olan biri var.
 
     }
+
+
 
     //13-gerekli parametreleri(bilgileri) pageable ile vererek
     //tüm öğrencilerin sayfalanmasını talep edilen sayfanın döndürülmesi sağlayalım
@@ -95,4 +103,49 @@ public class StudentService {
         return studentPage;
     }
 
+
+
+    //toplu kayıt işlemleri --- biz yaptık ---
+    public void saveMoreStudent(List<Student> students) {
+        repository.saveAll(students);
+    }
+
+
+
+    //15-
+    public List<Student> getStudentsByGrade(Integer grade) {
+        //select * from Student where grade=100
+        //return repository.findAllByGrade(grade);
+        return repository.filterStudentsByGrade(grade);
+    }
+
+
+    //18-a : id'si verilen studenti tablodan getirelim
+    public StudentDTO getStudentByIdDto(Long id) {
+
+        Student student = getStudentById(id);
+
+        //Entity --> DTO
+        // tablodan gelen entitynin içindeki 3 datayı alıp
+        //dto objesi içine yerleştirdik
+
+        //@AllArgsConstructor kısmını kullandık burada
+        //StudentDTO studentDTO=new StudentDTO(student.getName(),student.getLastname(),student.getGrade());
+        //StudentDTO studentDTO=new StudentDTO();
+        //studentDTO.setName(student.getName());....
+
+        //yukarıdaki 2 seçenek zahmetli, bunun yerine DTO oluşturmak için
+        // constructorın parametresine Entity objesi verip dönüşümü sağlayabiliriz
+        StudentDTO studentDTO=new StudentDTO(student);
+        return studentDTO;
+    }
+
+    //18-b : repositoryden doğrudan DTO objesi getirelim
+    public StudentDTO getStudentByInfoByDTO(Long id) {
+
+        //Student student = getStudentById(id);//burayı kullanmadık student döndürüyor studentDto döndürmüyor bu yüzden aşadaki gibi yazdık
+        StudentDTO studentDTO = repository.findStudentDtoById(id).
+                orElseThrow(()->new ResourceNotFoundException("Student is not found by id: " + id));
+        return studentDTO;
+    }
 }

@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  error:
+    include-binding-errors: always
+    include-message: always
+    include-stacktrace: never
+#exception kısmını göstermeme ayarları
+
+
+spring:
+  application:
+    name: SpringBootIntro
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springboot_db
+    username: techpro
+    password: password
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL9Dialect
+        format_sql: true
+#hiyerarşiyi doğru girmemiz grekir
+#propertice yml formatına dönüştürme programları var

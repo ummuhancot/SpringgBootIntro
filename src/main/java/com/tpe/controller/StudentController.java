@@ -1,6 +1,8 @@
 package com.tpe.controller;
 
+import com.fasterxml.jackson.core.format.InputAccessor;
 import com.tpe.domain.Student;
+import com.tpe.dto.StudentDTO;
 import com.tpe.dto.UpdateStudentDTO;
 import com.tpe.service.StudentService;
 import lombok.Getter;
@@ -153,9 +155,50 @@ public class StudentController {
     }
     // 1 | 2 | 3 | 4 ...next
 
+    //toplu kayıt işlemleri---biz yaptık---
+    @PostMapping("/morestudents")
+    public ResponseEntity<String> createMoreStudent(@RequestBody List<Student> students){
+        service.saveMoreStudent(students);
+        return new ResponseEntity<>("More students created",HttpStatus.CREATED);
+    }
+
+    //14-grade ile öğrencileri filtreleyelim
+    // query veya path param kullanabiliriz
+    // request:http://localhost:8080/students/grade/100
+    //response: grade=100 olan öğrencileri listeleyelim + 200
+
+    @GetMapping("/grade/{grade}")
+    public ResponseEntity<List<Student>> getAllStudentsByGrade(@PathVariable("grade") Integer grade){
+        List<Student> studentList=service.getStudentsByGrade(grade);
+        return ResponseEntity.ok(studentList);//200
+    }
+
+    //ÖDEVVV:
+    //JPA in metodlarını türetme
+    //JPQL/SQL ile custom sorgu
+    //16-lastname ile öğrencileri filtreleyelim
+    // request:http://localhost:8080/students/lastname?lastname=Potter + GET
+    //response : lastname e sahip olan öğrenci listesi + 200
 
 
 
+    //Meraklısına ÖDEVVV:)isim veya soyisme göre filtreleme
+    //request:http://localhost:8080/students/search?word=harry + GET
+    //uniq değilse list döner.
+    //email veya id ile filtreleme yaparsak uniq olanlar yani Student dönebilir.
+    //cok fazla kayıt varsa sayfalandırma yapabilirizmiş
+
+
+    //17-id'si verilen öğrencinin name,lastname ve grade getirme
+    //request:http://localhost:8080/students/info/2 + GET
+    //responsex.id si verilen öğrencinin sadece 3 datasını studet entity le değil DTO ile getirelim
+    @GetMapping("/info/{id}")
+    public ResponseEntity<StudentDTO> getStudentInfo(@PathVariable("id") Long id){
+
+        //StudentDTO studentDTO = service.getStudentByIdDto(id);    //18-a
+        StudentDTO studentDTO = service.getStudentByInfoByDTO(id);  //18-b
+        return ResponseEntity.ok(studentDTO);
+    }
 
 
     //Not:http://localhost:8080/students/update?name=Ali&lastname=Can&email=ali@mail.com
