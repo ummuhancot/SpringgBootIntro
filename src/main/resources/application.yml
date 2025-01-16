@@ -24,3 +24,50 @@ spring:
         format_sql: true
 #hiyerarşiyi doğru girmemiz grekir
 #propertice yml formatına dönüştürme programları var
+
+#log kayıtları icin propertieler
+logging:   #logging.file.name:log/studentapp.log
+  file:
+    name: log/studentapp.log
+  pattern:
+    file: "%d %-5level [%thread] %logger:%msg%n" #%d yer tutucu tarih %-5level log seviyesi gelsin [%thread] calışan tread bilgileri gelsin %logger:%msg%n log kaydı ve mesajı gelsin
+  level: #hangi logları vercemizi vercez
+    '[org.springframework.web]': WARN #WARM VE ÜZERİNDEKİLER
+    '[org.hibernate]': INFO #INFO VE ÜZERİNDEKİLER
+    #'[com.tpe]': INFO
+    com:
+      tpe: INFO #INFO WARN VE EROR LOG KAYITLARI DOSYAMIZA AKTARILACAK DEMEKTİR.
+
+
+#Hata durumunda, sistemin hangi noktada sorun yaşadığını anlamanıza yardımcı olur
+#/actuator/health    Uygulamanın sağlık durumunu gösterir.
+#/actuator/metrics   Uygulamanın performansıyla ilgili metrikleri listeler.
+#/actuator/env       Uygulamanın çevre değişkenlerini listeler.
+#/actuator/loggers   Log seviyelerini ve log yapılandırmalarını kontrol eder.
+#/actuator/info      Uygulama hakkında bilgi verir (ör. sürüm bilgisi).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ['info','health','threaddump','env','beans','loggers'] #beans ugulama canlıdayken ulusturulan beans bilgiler
+  info:
+    env:
+      enabled: true
+#Güvenli actuator ayarları
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: [ 'health', 'info' ]
+#        exclude: [ 'env', 'metrics' ]
+#  endpoint:
+#    health:
+#      show-details: never
+
+
+#uygulama hakkında bilgiler
+info:
+  application:
+    name: 'Student Management System Demo App ' #uygulama ismi
+    version: '@project.version@' #proje versiyonu
+    description: 'Demo App For Spring Boot' #acıklama

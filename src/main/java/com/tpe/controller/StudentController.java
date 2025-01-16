@@ -7,6 +7,8 @@ import com.tpe.dto.UpdateStudentDTO;
 import com.tpe.service.StudentService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -39,6 +43,10 @@ clienttan 3 sekilde veri alinir:
 @RequiredArgsConstructor -- zorunlu (final) olan field lari parametre olarak alan const. olusturur
 */
 public class StudentController {
+
+    //en başa almamız gerekiyor hepsine ekleme yapmamız icin
+    Logger logger = LoggerFactory.getLogger(StudentController.class);
+
 
     @Autowired
     private StudentService service;
@@ -79,13 +87,26 @@ public class StudentController {
     "grade":98
     }
      */
+    ///log ekledik
     //Response : ogrenci tabloya eklenecek, basarili mesaji + 201(Created) cevap olarak istemciye bunlar dondurulur
     @PostMapping
     public ResponseEntity<String> createStudent(@Valid @RequestBody Student student){ //ResponseEntity<String> burda String turunde bir deger donderecegim
+        ///eklenti
+        try {
+            service.saveStudent(student);
+            logger.info("yeni öğrenci eklendi : "+student.getName());
 
-        service.saveStudent(student);
+            return new ResponseEntity<>("Student is created successfully...",HttpStatus.CREATED); //Durumu : HttpStatus.CREATE : 201
 
-        return new ResponseEntity<>("Student is created successfully...",HttpStatus.CREATED); //Durumu : HttpStatus.CREATE : 201
+        }catch (Exception e){
+            logger.warn(e.getMessage());
+            //return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);//404
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);//400
+        }
+
+        //eski
+        //service.saveStudent(student);
+        //return new ResponseEntity<>("Student is created successfully...",HttpStatus.CREATED); //Durumu : HttpStatus.CREATE : 201
     }
 
 
@@ -179,15 +200,51 @@ public class StudentController {
     //16-lastname ile öğrencileri filtreleyelim
     // request:http://localhost:8080/students/lastname?lastname=Potter + GET
     //response : lastname e sahip olan öğrenci listesi + 200
+    @GetMapping("/lastname")
+    public ResponseEntity<List<Student>> getStudentsByLastName(@RequestParam String lastname){
+
+        List<Student> studentList=service.getAllStudentByLastname(lastname);
+
+        return ResponseEntity.ok(studentList);//200
+    }
 
 
 
-    //Meraklısına ÖDEVVV:)isim veya soyisme göre filtreleme
+    ///Meraklısına ÖDEVVV:)isim veya soyisme göre filtreleme
     //request:http://localhost:8080/students/search?word=harry + GET
     //uniq değilse list döner.
     //email veya id ile filtreleme yaparsak uniq olanlar yani Student dönebilir.
     //cok fazla kayıt varsa sayfalandırma yapabilirizmiş
+    @GetMapping("/search")
+    public ResponseEntity<List<Student>> getAllStudentByNameOrLastName(@RequestParam("word") String word){
+        List<Student> studentList = service.getAllStudentByNameOrLastname(word);
+        return ResponseEntity.ok(studentList);
 
+    }
+    //and kısmı ile
+    @GetMapping("/search/and")
+    public ResponseEntity<List<Student>> getAllStudentByNameAndLastName(@RequestParam("word") String word){
+        List<Student> studentList = service.getAllStudentByNameOrLastname(word);
+        return ResponseEntity.ok(studentList);
+
+    }
+
+    ///Meraklısına:) ÖDEVVV:2
+    //Meraklısına ÖDEVVV:)name içinde ".." hecesi geçen öğrencileri filtreleme
+    //request:http://localhost:8080/students/filter?word=al + GET ex:halil, lale
+    @GetMapping("/filter")
+    public ResponseEntity<List<Student>> filterByKeyWord(@RequestParam("word") String word){
+        List<Student> studentList = service.getByKeyword(word);
+        return ResponseEntity.ok(studentList);
+    }
+
+    //Meraklısına ÖDEVVV : 3 :)name içinde ".." hecesi ve lastname icinde "sa" geçen öğrencileri filtreleme
+    //request:http://localhost:8080/students/filter/like?word=al + GET ex:halil, lale
+    @GetMapping("/filter/like")
+    public ResponseEntity<List<Student>> filterByKeywordNameOrLastname(@RequestParam("word") String word) {
+        List<Student> studentList = service.getByKeyWordNameOrLastname(word);
+        return ResponseEntity.ok(studentList);
+    }
 
     //17-id'si verilen öğrencinin name,lastname ve grade getirme
     //request:http://localhost:8080/students/info/2 + GET
@@ -200,9 +257,65 @@ public class StudentController {
         return ResponseEntity.ok(studentDTO);
     }
 
+    /*
+    Loglama, bir yazılım veya sistemin çalışırken yaptığı önemli olayları,
+     işlemleri ve hataları kaydetmesi anlamına gelir. Loglar,
 
+     bilgisayar programlarının bir çeşit "günlüğü" veya "karne defteri" gibi düşünülebilir.
+     Sistem, yaptığı işleri ve karşılaştığı problemleri
+     buraya yazar ve bu bilgiler, geliştiriciler veya sistem yöneticileri için çok değerlidir.
+    */
+
+    ///her class icin ayrı log dosyaları oluşturulur.
+    ///ihtiyacımız olan yerlere ayrı ayrı koymamız gerekiyor.
+    //import org.slf4j.Logger; den import ediyoruz
+   // Logger logger = LoggerFactory.getLogger(StudentController.class);
+
+    //19-http://localhost:8080/students/welcome + GET
+    @GetMapping("/welcome")
+    public String welcome(HttpServletRequest request){
+        logger.info("Welcome isteği geldi¹");//normal işlemler sıradan islemler info
+        logger.warn("welcome isteğinin pathi : "+request.getServletPath());
+        logger.warn("welcome isteğinin methodu : "+request.getMethod());
+        return "welcome:)";
+    }
     //Not:http://localhost:8080/students/update?name=Ali&lastname=Can&email=ali@mail.com
 
+    /*
+    Spring Boot Actuator, bir uygulamanın sağlık durumunu ve çalışma metriklerini izlemek
+    için kullanılan bir Spring Boot kütüphanesidir. Actuator, bir uygulamanın
+    arka planda nasıl çalıştığını görmenizi sağlar ve uygulamanın izlenebilirliğini artırır.
+    Uygulama Sağlık Durumu:
 
+    Uygulamanın çalışır durumda olup olmadığını kontrol eder.
+    Örneğin: "Veritabanına bağlanabiliyor mu? Sunucu çalışıyor mu?"
+    Metrik Takibi:
 
+    Uygulamanın performansı hakkında bilgiler sağlar.
+    Örneğin: "Kaç kullanıcı sisteme bağlandı? Bellek kullanımı ne durumda?"
+    Günlük İşleyişin İzlenmesi:
+
+    Loglama, yapılandırmalar, güvenlik bilgileri gibi iç detayları görmenizi sağlar.
+    Sorun Giderme:
+
+    Hata durumunda, sistemin hangi noktada sorun yaşadığını anlamanıza yardımcı olur
+    /actuator/health    Uygulamanın sağlık durumunu gösterir.
+    /actuator/metrics   Uygulamanın performansıyla ilgili metrikleri listeler.
+    /actuator/env       Uygulamanın çevre değişkenlerini listeler.
+    /actuator/loggers   Log seviyelerini ve log yapılandırmalarını kontrol eder.
+    /actuator/info      Uygulama hakkında bilgi verir (ör. sürüm bilgisi).
+    */
+
+    /*Volkswagen'in Spring Boot Actuator'da gizlemediği şey, muhtemelen hassas
+    uç noktalar (endpoints) veya yapılandırma bilgileri olabilir. Spring Boot Actuator,
+    uygulamanın durumu ve metrikleri hakkında bilgi sağlayan çeşitli uç noktalar sunar.
+    Bu uç noktalar arasında /env, /metrics, /health, /info gibi uç noktalar bulunur.
+    Eğer bu uç noktalar güvenli bir şekilde yapılandırılmamışsa, hassas bilgiler
+    (örneğin, GPS verileri, yapılandırma bilgileri) kötü niyetli kişiler tarafından
+    erişilebilir hale gelebilir. Bu nedenle, Actuator uç noktalarını güvenli hale getirmek
+    için aşağıdaki önlemler alınmalıdır:
+    Uç Noktaları Güvenli Hale Getirme: Hassas uç noktaları güvenli hale getirmek için kimlik
+    doğrulama ve yetkilendirme mekanizmaları kullanın.
+    Uç Noktaları Kısıtlama: Sadece gerekli olan uç noktaları etkinleştirin ve diğerlerini devre dışı bırakın.
+    Hassas Bilgileri Gizleme: Hassas bilgileri içeren uç noktaları gizleyin veya bu bilgileri maskeleyin.*/
 }

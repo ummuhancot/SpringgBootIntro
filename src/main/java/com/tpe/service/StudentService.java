@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.parser.Part;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -147,5 +148,34 @@ public class StudentService {
         StudentDTO studentDTO = repository.findStudentDtoById(id).
                 orElseThrow(()->new ResourceNotFoundException("Student is not found by id: " + id));
         return studentDTO;
+    }
+
+    //ÖDEV:16
+    public List<Student> getAllStudentByLastname(String lastName) {
+        return repository.findAllByLastnameIgnoreCase(lastName);
+         //IgnoreCase kısmını ekledik büyük küçük duyarsız oldu
+    }
+
+
+    //meraklısına :) ÖDEV
+    public List<Student> getAllStudentByNameOrLastname(String word) {
+        return repository.findByNameOrLastname(word,word);
+
+    }
+    //and
+    public List<Student> getAllStudentByNameAndLastname(String word) {
+        return repository.findByNameAndLastname(word,word);
+
+    }
+
+
+    //Meraklısına:) ÖDEVVV:2
+    public List<Student> getByKeyword(String word) {
+        return repository.findByNameContainsIgnoreCase(word);
+    }
+
+    //Meraklısına:) ÖDEVVV:3
+    public List<Student> getByKeyWordNameOrLastname(String word) {
+        return repository.findByNameOrLastnameContainsIgnoreCase(word,word);
     }
 }

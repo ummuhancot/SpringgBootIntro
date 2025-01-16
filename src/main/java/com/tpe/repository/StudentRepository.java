@@ -43,6 +43,19 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("SELECT new com.tpe.dto.StudentDTO(s) FROM Student s WHERE s.id=:pId")//StudentDTO clasındaki constractor u cağırdık new com.tpe.dto.StudentDTO(s) kısmı
     Optional<StudentDTO> findStudentDtoById(@Param("pId") Long id);
 
+    //16:ÖDEV
+    List<Student> findAllByLastnameIgnoreCase(String lastName);
 
+    //meraklısına ÖDEV :)
+    //JPQL
+    //SELECT * FROM Student WHERE name=:pWord OR lastname=:pWord1
+    List<Student> findByNameOrLastname(String word, String word1);
+    //and
+    List<Student> findByNameAndLastname(String word, String word1);
 
+    //Meraklısına:) ÖDEVVV:2
+    List<Student> findByNameContainsIgnoreCase(String word);
+
+    //Meraklısına:) ÖDEVVV:2
+    List<Student> findByNameOrLastnameContainsIgnoreCase(String word, String word1);
 }

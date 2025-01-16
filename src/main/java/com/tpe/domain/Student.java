@@ -7,6 +7,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter //tüm fieldlar için getter metodunun tanımlanmasını sağlar
@@ -53,5 +55,8 @@ public class Student {
     private LocalDateTime createDate=LocalDateTime.now();
 
     //getter-setter
+
+    @OneToMany(mappedBy = "student")
+    private List<Book> bookList = new ArrayList<>();
 
 }
