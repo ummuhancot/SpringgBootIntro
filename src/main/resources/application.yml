@@ -25,6 +25,12 @@ spring:
 #hiyerarşiyi doğru girmemiz grekir
 #propertice yml formatına dönüştürme programları var
 
+#spring securityyy kısmı user ve password u biz belirleyebiloruz
+security:
+  user:
+    name: admin
+    password: password
+
 #log kayıtları icin propertieler
 logging:   #logging.file.name:log/studentapp.log
   file:

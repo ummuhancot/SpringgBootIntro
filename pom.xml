@@ -69,6 +69,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!--spring securityyy kütüphanesi-->
+		<!--http://localhost:8080/students/greet-->
+		<!--user:user password:900b081c-d8b2-4e0d-8907-d94925faef14-->
+		<!--cıkıs icin http://localhost:8080/logout-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
