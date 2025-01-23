@@ -1806,3 +1806,6 @@ org.postgresql.util.PSQLException: ERROR: null value in column "email" of relati
 2025-01-23 14:08:58,474 INFO  [restartedMain] com.tpe.SpringBootIntroApplication:Started SpringBootIntroApplication in 8.365 seconds (JVM running for 9.027)
 2025-01-23 14:09:05,665 INFO  [http-nio-8080-exec-1] org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]:Initializing Spring DispatcherServlet 'dispatcherServlet'
 2025-01-23 14:09:21,794 WARN  [http-nio-8080-exec-3] org.apache.catalina.util.SessionIdGeneratorBase:Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [132] milliseconds.
+2025-01-23 14:15:33,936 INFO  [SpringApplicationShutdownHook] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean:Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-01-23 14:15:33,938 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource:HikariPool-1 - Shutdown initiated...
+2025-01-23 14:15:33,942 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource:HikariPool-1 - Shutdown completed.

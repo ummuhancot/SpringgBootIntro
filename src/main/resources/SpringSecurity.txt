@@ -1,0 +1,191 @@
+
+    --------SPRING SECURITY-------
+
+    1.DERS:
+
+    1.Gelen requestler normalde dispatcherservlet tarafindan karsilaniyor iken;Uygulamaya Security bagimliliklari yuklendikten sonra
+    gelen istek dispatcherservlet'den once security filter'da(default veya bizim olusturdugumuz) karsilanir.
+    Burada kimlik dogrulamasi(Authentication) ve role(yetki) kontrolu(Authorization) yapilir.
+
+    SECURITY ILE ILGILI BAZI ONEMLI KAVRAMLAR:
+
+    CODING(Kodlama):Veri transferinin duzgun bir sekilde yapilmasi saglamak icin yapilir.
+    Sifreleme geri donusturulebiliyor.Bir anahtar kullanarak sifrelenmis bir bilgiyi alabilir
+    Hashlenmis bir deger geri donusturulemez ,Ancak hashlenmis bir deger ile karsilastirma yapilabilir.
+
+    TO HASH,HASHING(Hashlemek): Bir veri parçasını (örneğin bir dosya, parola ya da metin) sabit uzunlukta ve benzersiz bir diziye dönüştürme işlemidir.
+    Bu işlem, genellikle bir hash fonksiyonu kullanılarak yapılır. Hashleme süreci birçok alanda kullanılır ve şu şekilde özetlenebilir:
+    Bir hash fonksiyonu, bir girdiyi alır (örneğin bir dosya ya da parola) ve bunu sabit uzunlukta bir çıktıya (hash değeri veya hash kodu) dönüştürür. Örneğin:
+    "Merhaba Dünya" → 6f5902ac237024bdd0c176cb93063dc4(Bir Hash algoritmasi ile yapilir)
+    Kimlik dogrulamsi ilk girilin veri ile de hashlenmis haliyle yapilir.
+    Eger girilen kimlik bilgileri hashlenmis dizi ile ayni ise sifre dogrulanir.Boylelikle hic kimse kullanici bililerini goremez.
+
+    TOKEN(Anahtar): Yazılım ve Programlama'da: Bir programın içinde kullanılan küçük dil birimlerini ifade eder.
+    Mesela, bir bilgisayar programını yazarken, kodunuzu belirli parçalara böldüğünüzde bu parçalar "token" olarak adlandırılır.
+    Bu, dilin yapı taşları olabilir, örneğin bir değişken adı ya da bir sayısal değer.
+    Kısacası, token bir sistemde bir anlam taşıyan veya bir işlevi yerine getiren dijital bir öğedir.
+    Bu öğe, kullanılan alana göre değişik şeyler ifade edebilir: bir para birimi, bir güvenlik anahtarı veya bir yazılım parçası gibi.
+    Bu anahtar ile diger istekler yapilabilir.
+
+    ENCODER: Verileri bir biçimden başka bir biçime dönüştüren bir yazılım ya da donanım aracıdır.
+    Örneğin, bir ses dosyasını bir formattan başka bir formata dönüştürmek için kullanılan bir encoder olabilir.
+    Video işleme, ses sıkıştırma, dosya şifreleme gibi alanlarda sıkça kullanılır.
+
+
+    AUTHENTICATION YONTEMLERI:
+
+    1.Form Based Authentication:
+    * Basit Uygulamalarda kullanilir.Uygulama oncesinde bir arayuz karsilar.
+    Fakat her islemde kimlik bilgileri tasindigindan cok fazla tercih edilmez.Guvenlik dusuktur.
+    RestApi'lerde degil Dinamik uygulamalarda kullanilir.
+
+    2.Basic Authentication:
+    * Bir form ile degil de requestin bir bileseni olarak gonderilir.Requestlerin header'inda(basligi icerisinde) gonderilir.
+    * Base 64 (Kodlama algoritmasi(sifrelemeden farkli))  ile requestlerin header'lari icerisinde korunarak(encode edilerek) veri aktarimi yapilir.
+    * Tek basina kullanimi yetersizdir Guvenligi saglamak icin Https protokoli ile birlikte kullanilmalidir.
+    * RestApi'lerde kullanilabilir fakat RestApilerde session olmadigi icin (bilgiler saklanmiyor)
+    Bu nedenle her istekte kullanici bilgilerinin gonderilmesi gerekir
+
+    3.JWT Based Authentication:(JSON WEB TOKEN)
+    * Kullnicinin kimlik bilgileri JSON formatinda gonderilir.
+    * RestApi'lerde kullanilanimi populerdir.
+    * Dijital bir imza ile guvence altina alinir.
+    * Her istekte kullanici bilgilerinin gonderilmesi gerekirmez.Bir kere giris yaptiginizda size bir 'token'(anahtar) verilir.
+
+        ----SUREC ISLEYISI----
+
+ Kendi olusturdugum USER,ROLE USERSERVICE icerisinden UserDetail,Granted Authority ve UserDetailServiceler olusturuyoruz.Kendi Yapilarimdan
+ donusum saglamis oluyorum.
+
+1.UserDetail:
+Authentication) ve role(yetki) kontrolu(Authorization)  icin Spring Security'in bir USER'a ihtiyaci vardir.Herkesin olusturdugu user farkli
+olabilecegi icin bir standart saglamak icin UserDetail olusturulur.
+
+2.Granted Authority :
+Yetkilerin belirlenmesi icin bir ROLE'E ihtiyac vardir .Herkesin olusturdugu ROLE farkli olabilecegi icin bir standart saglamak icin
+Granted Authority olusturulur.
+
+3.UserDetailService: Islemlerin yapilabilmesi ve kontroller icin Spring Security Framework UserService tanimayacagi
+ icin UserDetailService olusturulur.
+
+  ----AUTHENTICATION AKISI---
+
+1-Bir request geldiginde DispatcherServlet'den once---> AuthenticationFilter'a takilir.
+
+2.Girilen user ve password AuthenticationFilter'dan ---> AuthenticationManager'a (SpringSecurity'in bir bileseni yani objesidir.)iletilir.
+AuthenticationManager da gelen bilgileri ilgili birimlere gonderir. Manager bu dogrulama islemini kendisi degil,memuru olan
+AuthenticationProvider'a (DaoAuthenticationProvider)yonlendirir.
+
+3.DaoAuthenticationProvider kontrolu yapmak icin bu bilginin repository'de olup olmadigini kontrol eder.Fakat dogrudan
+repository'e ulasamayacagi icin UserDetailService gonderir
+
+4.UserDetailService da repository araciligi ile database'e ulasir.Eger boyle bir kullanici var ise password
+hashlenmis bir sekilde databaseden repository yardimiyla tekrar alinir.Bu alinan hashlenmis veriyi providerdan gelen ile karsilastirmasi gerekir
+
+5.Bu karsilastirmanin yapilabilmesi icin requesten gelen password 'un hashlanmesi gerekiyor.
+
+6.Bu hashleme islemi PasswordEncoder tarafindan gerceklestirilir.
+
+7.Bu karsilastirma dogru oldugunda AuthenticationProvider dogrulama islemini gerceklestirir.ve bu dogrulamayi Manager'a geri gonderiyor.
+
+8.Manager da AuthenticationFilter'a tekrar gonderir ve LOGIN gerceklesmis olur..
+
+9.Giris yaptiginda kullanicin bilgileri gecici olarak SecurityContext de saklanir.
+
+10.RestController'da bu bilgilere ihtiyac varsa SecurityContext'den ulasilabilir.
+
+AKIS TAMAMLANIYOR...
+
+
+UYGULAMADA YAPILAN BAZI ISLEMLER
+
+1- Database'de bir ENUM kaydedebilmek icin datatype'i belli olmadigi icin @Enumerated(@Enumtype.STRING) anatasyanu kullanilir.
+Boylelikle enum degerleri String seklinde saklayabilirim.
+
+* Eger sayisal bir deger kullanacaksak --> @Enumerated(@Enumtype.ORDINAL) kullanilir.
+
+2-Uygulamanin amacina role ile kullanci arasinda iliski belirlenebilir.Bir kullanicin birden fazla rolu'u olabilir
+Bir role'u de birden fazla kullanici gerceklestirebilir.Bu durumda ManytoMany anatasyonu kullanilir.Boylellikle tek yonlu
+iliski yeterli olur.
+
+* Bu nedenle de bunlari tutmak icin farkli datatype lari bir yerde tutmayi saglayan 'Hashmap set' olusturulur.
+
+3-Spring Security UserDetailService'de  bazi methodlari kullanmayi zorunlu kilmis bu nedenle
+olusturdugumuz UserserviceDetailImp classta hazir bulunan bir interface olan UserDetailService'e implemente ediyoruz.
+Artik UserDetailService interface'inin butun ozelliklerini kullanabilirim.
+
+4-Spring'in istedigi UserDetails'i vermek icin geriye UserDetails donduren override etmek ici bir method hazirlamis.
+Bu methodu ile oncelikle kendi username'ini getirip bunu Spring'in istedigi UserDetails'e donusturebilme imkani saglaniyor.
+
+5-Ayni sekilde Spring'in istedigi GrantedAuthority'i verebilmek icin List turunde hazir olan SimpleGrantedAuthority classi donduren
+Set turunde parametre alan setGrantedAuthority(ismi onemli degil) methodu olusturulur.
+Bu methodu ile oncelikle kendi Roller'imizi getirip bunu Spring'in istedigi GrantedAuthority'e donusturebilme imkani saglaniyor.
+
+Spring'in bizden istedigi 3 sart saglanmis oldu..
+
+* UserDetailService (implemente ettik)
+* UserDetails (hazir method'u kullandik)
+* GrantedAuthority(Kendimiz hazir class dondurererk method olusturduk).
+Daha sonra bu method'un bady'lerinde islemler yapilir.
+
+6-Spring olusturmus oldugu, Default olan filtreleme ayarlarina ek olarak kendi filtreleme islemlerim icin bazi configurasyonlar yapmak gerekir.
+Bunun icin de WebSecurityConfig class'i olusturulur.
+
+---------------WebSecurityConfig class icerisinde yapilan islemler-------------------------
+
+* Bu class''in configirasyon classî oldugunu belitrmek icin @Configuration anatasyon'u kullanilir.
+
+* Security mekanizmasini kullanacagimi belirtmek icin @EnableWebSecurity antasyonu kullanilir..
+
+* Method seviyesinde yetkilendirme yapacagimizi gostermek icin @EnableGlobalMethodSecurity(prePostEnabled=true)  anatasyonu kullanilir.
+
+* Bu configure islemlerini yapabilmek icin WebSecurityConfigureeAdapter class'a extend edilir.
+
+* UserDetailService'den bir @Autiwired ile onje enjekte edilir.
+* Gelen requestleri configure etmek icin configure methodu kullanilarak override edilir.
+
+* Methodun parametresinde bulunun HttpSecurity data tipinda http objesi ile
+    1.csrf(); methodunu kullanmamak icin (Cunku API de arayuz yok) disable yani kullanma diyorum.
+    2.authorizeHttpRequests().method'u ile -->gelen http isteklerinin yetki kontrolunu yapayoruz.
+    3.antMatchers(); methodunun parametrelerindeki isteklere izin vermek icin permitAll() ve
+    bunlarin disindaki requestler icin
+    4.anyRequest() authenticated(). and().  httpBasic(); filtrelemeden gecmeyi kontrol icin methodlari kullnailirr.
+
+* AuthenticationManager ve AuthenticationProvider'in yapacagi islemler icin bazi ayarlarin bizim tarafimizdan yapilmasi gerekiyor.
+   1.@Bean olarak DaoAuthenticationProvider (Userlarimizi database kaydedecigimiz icin 'Dao' kullaniyoruz) data tipinde object'ini
+olusturabilmek icin bir 'authenticationProvidermethod' methodu olusturuyoruz.
+AuthenticationProvider'in ihtiyaci olan 'UserDetailsService', 'setPasswordEncoder' methodlarini cagiriyoruz.
+PasswordEncoder() methodumuz olmadigi icin bu methodu olusturuyoruz ve gucluk seviyesi belirmek icin parametresine bir rakamsal deger giriyoruz.
+bunu Kullanicin password'unu hashleyerek saklamak icin ve karsilastirma yapmak icin kullanir.
+
+* Son olarak * AuthenticationManager'da kendi configuration ayarlarimizi yapmak icin configure() methodunu override ediyoruz..
+Parametresine istedigi gibi kullanabilmesi icin AuthenticationProviderî yaziyoruz..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
