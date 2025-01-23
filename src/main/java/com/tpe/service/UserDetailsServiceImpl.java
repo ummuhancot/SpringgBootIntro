@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {//spring fren
                 orElseThrow(()->new UsernameNotFoundException("User not found by username:"+username));
 
         return new org.springframework.security.core.userdetails.
-                User(user.getUserName(),user.getPassword(),buildGrantedAuthorities(user.getRole()));//yukarıda bizim userimiz olduğu icin yukarıya ekleyemiyor buraya uzun uzun yazıyor
+                User(user.getUserName(),user.getPassword(),buildGrantedAuthorities(user.getRoles()));//yukarıda bizim userimiz olduğu icin yukarıya ekleyemiyor buraya uzun uzun yazıyor
         //kendi userimizin fieldlarını kullanarak UserDetailsi implemente eden
         //securitynin userini const ile oluşturduk.
 

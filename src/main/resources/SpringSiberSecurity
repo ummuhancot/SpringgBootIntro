@@ -1,0 +1,19 @@
+AuthenticationFilter: Gelen HTTP isteklerini yakalar ve kimlik doğrulama işlemini başlatır. Kullanıcıdan gelen kimlik bilgilerini (örneğin, kullanıcı adı ve şifre) alır ve AuthenticationManager'a iletir.
+
+AuthenticationManager: Kimlik doğrulama sürecini yöneten ana bileşendir. AuthenticationProvider'ları kullanarak kimlik doğrulama işlemini gerçekleştirir.
+
+AuthenticationProvider (DaoAuthenticationProvider): AuthenticationManager tarafından kullanılan bir implementasyondur. UserDetailsService ve PasswordEncoder ile birlikte çalışarak kullanıcı bilgilerini doğrular.
+
+SecurityContext: Kimlik doğrulama işlemi başarılı olduktan sonra, kullanıcının kimlik bilgileri burada saklanır. Bu, kullanıcının oturum boyunca kimliğinin korunmasını sağlar.
+
+RestController: Kimlik doğrulama işlemi tamamlandıktan sonra, kullanıcıya erişim sağlanan API'leri yönetir.
+
+UserDetailsService: Kullanıcı bilgilerini veritabanından yüklemekten sorumludur. DaoAuthenticationProvider tarafından kullanılır.
+
+PasswordEncoder: Kullanıcı şifrelerini şifrelemek ve doğrulamak için kullanılır. Genellikle hash algoritmaları kullanılır.
+
+UserRepository: Veritabanındaki kullanıcı bilgilerine erişmek için kullanılan bir repository arayüzüdür.
+
+Database (PostgreSQL/MySQL, ...): Kullanıcı bilgilerinin saklandığı veritabanıdır. Spring Security, bu veritabanındaki bilgileri kullanarak kimlik doğrulama işlemini gerçekleştirir.
+
+Bu bileşenler, Spring Security'nin kimlik doğrulama sürecini nasıl yönettiğini gösterir. Her bir bileşen, güvenli bir kimlik doğrulama akışı sağlamak için birbirleriyle etkileşim halindedir.

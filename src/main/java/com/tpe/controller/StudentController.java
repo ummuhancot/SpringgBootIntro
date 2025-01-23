@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +62,7 @@ public class StudentController {
     //http://localhost:8080/students/greet + GET
     //!! @ResponseBody //bu annatation @RestController icinde oldugu icin burda kullanmama gerek yok
     @GetMapping("/greet")
+    @PreAuthorize("hasRole('STUDENT')")
     public String greet(){
         return "Hello Spring Boot :)";
     }
@@ -68,6 +70,13 @@ public class StudentController {
     //1-tüm öğrencileri listeleyelim : READ
     //Request : http://localhost:8080/students + GET
     //Response : tum ogrencilerin listesini dondurecegiz + 200:OK(HttpStatus Code)yani cevabi destekleme kodu
+    @PreAuthorize("hasRole('STUDENT')")///methodu kullanmadan önce yetki kontrolü yapmayı sağlar.
+    ///`@PreAuthorize("hasRole('STUDENT')")` ifadesi, Spring Security'de kullanılan bir anotasyondur ve bu anotasyon,
+    ///belirli bir metodun veya endpoint'in yalnızca belirli bir role sahip kullanıcılar tarafından erişilebilmesini sağlar.
+    /// Bu örnekte, `hasRole('STUDENT')` ifadesi, bu metodun yalnızca `STUDENT` rolüne sahip kullanıcılar tarafından
+    ///erişilebileceğini belirtir.
+    ///Yani, bu endpoint'e erişmek isteyen bir kullanıcının `STUDENT` rolüne sahip olması gerekmektedir.
+    ///Bu, uygulamanızda güvenlik ve yetkilendirme kontrollerini sağlamak için kullanılır.
     @GetMapping
     //@ResponseBody :RestController icerisinde var burada kullanmaya gerek kalmadi
     public ResponseEntity<List<Student>> getAllStudents(){
@@ -111,12 +120,13 @@ public class StudentController {
 
 
     //6-query param ile id si verilen öğrenciyi getirme
-    //request: http://localhost:8080/students/query?id=1 + GET
-    //response : student + 200
+    //request : http://localhost:8080/students/query?id=1 + GET
+    //response:student + 200
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/query")
     public ResponseEntity<Student> getStudent(@RequestParam("id") Long id){
-        Student foundStudent = service.getStudentById(id);
-        return new ResponseEntity<>(foundStudent,HttpStatus.OK);
+        Student foundstudent=service.getStudentById(id);
+        return new ResponseEntity<>(foundstudent,HttpStatus.OK);
     }
 
     //ÖDEV:(Alternatif)6-path param ile id si verilen öğrenciyi getirme
