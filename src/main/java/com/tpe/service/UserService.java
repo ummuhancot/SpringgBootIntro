@@ -29,7 +29,11 @@ public class UserService {
         if (existsUser){
             throw new ConflictException("User already exists!!!");
         }
+        boolean existsEmail = userRepository.existsByEmail(userDTO.getEmail());
+        if (existsEmail){
+            throw new ConflictException("Email already exists!!!");
 
+        }
         User user=new User();
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -55,5 +59,7 @@ public class UserService {
         userRepository.save(user);
 
     }
+
+
 
 }
